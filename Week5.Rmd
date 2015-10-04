@@ -1,0 +1,60 @@
+---
+title: "Week5"
+output: html_document
+---
+
+```{r}
+user_movie <- read.csv2("./week5_ratings.csv", check.names = F)
+user_names <- user_movie[, 1]
+user_movie <- (user_movie[, -1])
+rownames(user_movie)<-user_names
+l2 <- sqrt(colSums(user_movie * user_movie, na.rm=T))
+```
+
+```{r}
+user_avg <- rowMeans(user_movie, na.rm=T)
+user_movie_norm <- user_movie - user_avg
+l2_norm <- sqrt(colSums(user_movie_norm * user_movie_norm, na.rm=T))
+```
+
+```{r}
+user_movie <- as.matrix(user_movie)
+user_movie[is.na(user_movie)] <- 0
+movie_movie_sim <- (t(user_movie) %*% user_movie)/   (l2 %*% t(l2))
+```
+
+
+```{r}
+user_movie_norm <- as.matrix(user_movie_norm)
+user_movie_norm[is.na(user_movie_norm)] <- 0
+movie_movie_norm_sim <- (t(user_movie_norm) %*% user_movie_norm)/   (l2_norm %*% t(l2_norm))
+sort(movie_movie_norm_sim["1: Toy Story (1995)",], decreasing = T)[2:6]
+```
+
+```{r}
+movie_movie_sim2 <- movie_movie_sim
+movie_movie_sim2[movie_movie_sim2<0] <- 0
+user_movie_pred <- user_movie %*% movie_movie_sim2
+
+user_movie_pred_denom <- user_movie
+user_movie_pred_denom[user_movie>0] <- 1
+user_movie_pred_denom <- user_movie_pred_denom %*% movie_movie_sim2
+
+user_movie_pred <- user_movie_pred/user_movie_pred_denom
+sort(user_movie_pred["5277",], decreasing =T)[1:5]
+```
+
+
+```{r}
+movie_movie_norm_sim2 <- movie_movie_norm_sim
+movie_movie_norm_sim2[movie_movie_norm_sim2<0] <- 0
+user_movie_norm_pred <- user_movie_norm %*% movie_movie_norm_sim2
+
+user_movie_norm_pred_denom <- user_movie_norm
+user_movie_norm_pred_denom[user_movie_norm>0] <- 1
+user_movie_norm_pred_denom[user_movie_norm<0] <- 1
+user_movie_norm_pred_denom <- user_movie_norm_pred_denom %*% movie_movie_norm_sim2
+
+user_movie_norm_pred <- user_movie_norm_pred/user_movie_norm_pred_denom
+sort(user_movie_norm_pred["5277",], decreasing =T)[1:5]
+```

@@ -1,0 +1,32 @@
+---
+title: "Week2Quiz"
+output: html_document
+---
+
+```{r}
+ratingmatrix <- read.csv("A1Ratings.csv", check.names = F)[,-1]
+```
+
+By mean:
+```{r}
+head(sort(sapply(ratingmatrix, function(x){mean(x, na.rm = T)}), decreasing = T))
+```
+
+By count:
+```{r}
+head(sort(sapply(ratingmatrix, function(x)sum(!is.na(x))), decreasing = T))
+```
+
+Percentage >= 4
+```{r}
+head(sort(sapply(ratingmatrix, function(x)sum(x>=4, na.rm = T)/sum(!is.na(x))), decreasing = T))
+```
+
+By users that rated Star Wars: Episode IV - A New Hope, most similar, by (x+y)/x, probability user rated i given that it rated ep4.
+```{r}
+rating_for_ep4 <- ratingmatrix[,grepl("A New Hope", colnames(ratingmatrix), fixed=TRUE)]
+associated_matrix <- ratingmatrix[ !is.na(rating_for_ep4), ]
+associated_ratings <- sapply(associated_matrix, function(x)sum(!is.na(x)))
+any_ratings <- sapply(ratingmatrix, function(x)sum(!is.na(x)))
+head(sort(associated_ratings / nrow(associated_matrix), decreasing=T))
+```

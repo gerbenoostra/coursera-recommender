@@ -1,0 +1,50 @@
+---
+title: "Week4"
+output: html_document
+---
+
+```{r}
+moviematrix <- read.csv2("./week4_movierow.csv")
+movienames <- moviematrix[, 1]
+movierow <- (moviematrix[, -1])
+rownames(movierow) <- movienames
+usercor <- cor(movierow, movierow, use = "pairwise.complete.obs")
+
+user_avg <- colMeans(movierow, na.rm=T)
+movierow_normalized <- t( t(movierow) - user_avg)
+#3867 and 89
+for(x in c("X3712", "X3867", "X89")){
+  cat("Nearest neighbors ")
+  cat(x)
+  cat(":\r\n")
+  cor_order <- order(usercor[x, ], decreasing=T)[-1][1:5]
+  cor_vals <- usercor[x, cor_order]
+  print(cor_vals)
+
+  cat("Top movies ")  
+  cat(x)
+  cat(":\r\n")
+  {
+    weighted_ratings <- t( t(movierow[, cor_order]) * cor_vals)
+    applied_weights <- t( t(!is.na(weighted_ratings)) * cor_vals)
+    predicted_ratings <- rowSums(weighted_ratings, na.rm = T) / rowSums(applied_weights)
+    top_movies <- sort(predicted_ratings, decreasing = T)[1:5]
+    print(top_movies)
+  }
+  
+  cat("Top normalized movies ")
+  cat(x)
+  cat(":\r\n")
+  {
+    weighted_ratings <- t( t(movierow_normalized[, cor_order]) * cor_vals)
+    applied_weights <- t( t(!is.na(weighted_ratings)) * cor_vals)
+    predicted_ratings <- rowSums(weighted_ratings, na.rm = T) / rowSums(applied_weights)
+    predicted_ratings <- predicted_ratings + user_avg[x]
+    top_movies <- sort(predicted_ratings, decreasing = T)[1:5]
+    print(top_movies)
+  }
+}
+```
+
+```{r}
+```
